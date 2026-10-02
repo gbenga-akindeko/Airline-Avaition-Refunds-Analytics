@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --orange: #F58220; --orange-dk: #D4711A; --ink: #23292B; --navy: #003049;
+      --cream: #FDF0E2; --cream-line: #F0DFC8; --bg: #F4F4F4; --card: #FFFFFF;
+      --muted: #6B6B6B; --line: #E6E6E6; --green: #00A651; --red: #B71C1C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { overflow-x: hidden; }
+    body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); font-size: 13px; }
+    h1, h2, h3, .serif { font-family: Garamond, Georgia, serif; }
+    button { font-family: inherit; }
+
+    /* Top bar */
+    .top { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 20px;
+           display: flex; align-items: center; gap: 16px; flex-wrap: wrap; position: sticky; top: 0; z-index: 20; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { height: 32px; display: none; }
+    .brand .word { font-family: Garamond, Georgia, serif; font-size: 22px; font-weight: 700; }
+    .brand .word b { color: var(--orange); }
+    .brand .sub { color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; font-size: 12px; }
+    .spacer { flex: 1; }
+    .who { text-align: right; font-size: 12px; color: var(--muted); }
+    .who strong { color: var(--ink); display: block; font-size: 13px; }
+    .chip { display: inline-block; background: var(--cream); border: 1px solid var(--cream-line); color: var(--ink);
+            padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700; margin: 3px 0 0 4px; }
+    .btn { border: none; border-radius: 6px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: var(--orange-dk); }
+    .btn-dark { background: var(--navy); color: #fff; }
+    .btn-ghost { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+    .btn-ghost:hover { border-color: var(--orange); }
+    .btn:disabled { background: #CCC; color: #fff; cursor: not-allowed; border-color: #CCC; }
+    .btn.confirming { background: var(--red); }
+
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 18px 20px 60px; }
+
+    /* Pipeline */
+    .pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 18px; }
+    .stage { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
+             cursor: pointer; position: relative; transition: border-color .15s; }
+    .stage:hover { border-color: var(--orange); }
+    .stage.on { border-color: var(--orange); box-shadow: 0 0 0 2px var(--cream-line); }
+    .stage .n { position: absolute; top: 10px; right: 12px; width: 22px; height: 22px; border-radius: 50%;
+                background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .stage .lbl { font-weight: 700; font-size: 12.5px; padding-right: 26px; }
+    .stage .count { font-family: Garamond, Georgia, serif; font-size: 30px; font-weight: 700; margin: 4px 0 2px; }
+    .stage .own { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+    .stage.mineq .count { color: var(--orange); }
+
+    /* Tabs + toolbar */
+    .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .tabs { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+    .tab { border: none; background: transparent; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12.5px; cursor: pointer; color: var(--muted); }
+    .tab.on { background: var(--ink); color: #fff; }
+    .tab .ct { background: var(--orange); color: #fff; border-radius: 9px; padding: 1px 7px; margin-left: 6px; font-size: 10.5px; }
+    input[type=text], input[type=search], select, textarea {
+      padding: 8px 10px; border: 1.5px solid #DDD; border-radius: 6px; font-size: 13px; font-family: inherit;
+      background: #FAFAFA; color: var(--ink); width: 100%; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--orange); background: #fff; }
+    .search { max-width: 320px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 11.5px; }
+
+    /* Table */
+    .tablewrap { background: var(--card); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted);
+         padding: 10px 12px; border-bottom: 1px solid var(--line); background: #FAFAFA; white-space: nowrap; }
+    td { padding: 10px 12px; border-bottom: 1px solid #F2F2F2; vertical-align: top; }
+    tr.r { cursor: pointer; }
+    tr.r:hover td { background: var(--cream); }
+    tr.r.sel td { background: var(--cream); }
+    td .id { font-weight: 700; }
+    td .sub2 { color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+    .num { text-align: right; white-space: nowrap; }
+    .empty { padding: 40px; text-align: center; color: var(--muted); }
+    .more { padding: 10px; text-align: center; }
+
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 10.5px; font-weight: 700; color: #fff; white-space: nowrap; }
+    .b-PENDING { background: #E65100; } .b-PROCESSING { background: #1565C0; } .b-PROCESS-DONE { background: #7B4FBF; }
+    .b-SERVICE-CHARGE { background: #B8860B; } .b-POSTED { background: #319F4E; } .b-SETTLED { background: var(--navy); }
+    .b-CLOSED { background: #9E9E9E; }
+    .act { color: var(--orange); font-weight: 700; font-size: 11px; }
+    .age-warn { color: #E65100; font-weight: 700; }
+
+    /* Drawer */
+    .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; z-index: 40; }
+    .scrim.on { display: block; }
+    .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100%; background: var(--card);
+              box-shadow: -4px 0 20px rgba(0,0,0,.12); transform: translateX(100%); transition: transform .2s, visibility .2s; z-index: 50;
+              display: flex; flex-direction: column; visibility: hidden; }
+    .drawer.on { transform: none; visibility: visible; }
+
+    /* Quick action in table */
+    .qa { border: none; background: var(--orange); color: #fff; font-weight: 700; font-size: 11px; padding: 5px 9px;
+          border-radius: 4px; cursor: pointer; white-space: nowrap; }
+    .qa:hover { background: var(--orange-dk); }
+    .qa.alt { background: var(--navy); }
+    .qa.confirming { background: var(--red); }
+    .qa:disabled { background: #CCC; }
+    select.qs { width: auto; min-width: 170px; padding: 5px 8px; font-size: 11.5px; font-weight: 700;
+                border-color: var(--orange); background: #FFF8F1; cursor: pointer; }
+    select.qs option:disabled { color: #BBB; }
+
+    /* Dashboard */
+    .dfilters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--ink); color: #fff;
+                border-radius: 8px 8px 0 0; padding: 12px 16px; border-bottom: 3px solid var(--orange); }
+    .dfilters h2 { color: var(--orange); font-size: 20px; margin-right: 8px; }
+    .dfilters label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: #BBB; font-weight: 700; }
+    .dfilters select { width: auto; min-width: 120px; background: var(--cream); border-color: var(--cream); font-weight: 700; }
+    .dfilters .hint { color: var(--orange); font-size: 11.5px; }
+    .dsect { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-top: 14px; overflow: hidden; }
+    .dsect > h3 { background: var(--ink); color: var(--orange); font-size: 15px; padding: 9px 16px; letter-spacing: .3px; }
+    .dsect > h3 span { color: #BBB; font-family: Arial, sans-serif; font-size: 11.5px; font-weight: 400; margin-left: 6px; }
+    .kpis { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .kpis.k5 { grid-template-columns: repeat(5, 1fr); }
+    .kpi { padding: 12px 14px; border-right: 1px solid #F0F0F0; text-align: center; }
+    .kpi:last-child { border-right: none; }
+    .kpi .kl { font-size: 11px; color: var(--muted); }
+    .kpi .kv { font-family: Garamond, Georgia, serif; font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .kpi .kv.money { font-size: 22px; }
+    .kpi.hl { background: #EAF7EE; } .kpi.hl .kv { color: #1B7F3B; }
+    .dtable { overflow-x: auto; }
+    .dtable table { min-width: 720px; }
+    .dtable th { background: #7A7A7A; color: #fff; text-align: center; }
+    .dtable th:first-child, .dtable td:first-child { text-align: left; }
+    .dtable td { text-align: center; padding: 8px 12px; }
+    .dtable tr.tot td { background: var(--ink); color: #fff; font-weight: 700; }
+    .dtable tr.tot.purple td { background: #7B4FBF; }
+    .dtable tr.dim td { color: #999; }
+    .dtable .g { color: #1B7F3B; } .dtable .b { color: #1565C0; font-weight: 700; } .dtable .o { color: #B8860B; font-weight: 700; }
+    .bar-in { display: inline-block; height: 8px; background: var(--orange); border-radius: 4px; vertical-align: middle; margin-right: 6px; }
+    .dgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dgrid .dsect { margin-top: 14px; }
+    @media (max-width: 900px) { .kpis, .kpis.k5 { grid-template-columns: repeat(2, 1fr); } .kpi { border-bottom: 1px solid #F0F0F0; } .dgrid { grid-template-columns: 1fr; } }
+    .dh { padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--cream); display: flex; gap: 12px; align-items: flex-start; }
+    .dh h2 { font-size: 20px; }
+    .dh .x { margin-left: auto; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+    .db { padding: 18px 20px; overflow-y: auto; flex: 1; }
+    .sect { font-size: 10.5px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .7px;
+            margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--cream-line); }
+    .sect:first-child { margin-top: 0; }
+    dl { display: grid; grid-template-columns: 42% 58%; }
+    dt, dd { padding: 6px 0; border-bottom: 1px solid #F4F4F4; font-size: 12.5px; }
+    dt { color: var(--muted); }
+    dd { font-weight: 600; word-break: break-word; }
+
+    .steps { list-style: none; }
+    .steps li { display: flex; gap: 10px; padding: 5px 0; align-items: center; font-size: 12.5px; }
+    .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #CCC; flex: none; }
+    .steps li.done .dot { background: var(--green); border-color: var(--green); }
+    .steps li.now .dot { background: var(--orange); border-color: var(--orange); }
+    .steps li .when { margin-left: auto; color: var(--muted); font-size: 11.5px; }
+    .steps li .dur { color: var(--muted); font-size: 11px; }
+
+    .panel { background: #FAFAFA; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+    .fld { margin-bottom: 10px; }
+    .fld label { display: block; font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+    .fld .req { color: #E65100; }
+    .btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .note { font-size: 11.5px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+    .hist { font-size: 12px; }
+    .hist div { padding: 7px 0; border-bottom: 1px solid #F4F4F4; }
+    .hist .h1 { font-weight: 700; }
+
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff;
+             padding: 11px 18px; border-radius: 6px; font-size: 13px; z-index: 90; display: none; max-width: 90%; }
+    .toast.on { display: block; } .toast.err { background: var(--red); }
+
+    .loader { position: fixed; inset: 0; background: rgba(255,255,255,.92); display: flex; align-items: center;
+              justify-content: center; flex-direction: column; z-index: 99; }
+    .loader.off { display: none; }
+    .spin { width: 34px; height: 34px; border: 3px solid var(--orange); border-top-color: transparent; border-radius: 50%; animation: s .7s linear infinite; }
+    @keyframes s { to { transform: rotate(360deg); } }
+    .deny { max-width: 480px; margin: 80px auto; background: #fff; padding: 28px; border-radius: 10px; border: 1px solid var(--line); text-align: center; line-height: 1.5; }
+
+    @media (max-width: 1000px) { .pipe { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 560px) {
+      .pipe { grid-template-columns: repeat(2, 1fr); }
+      .top { padding: 10px 16px; } .wrap { padding: 14px 16px 60px; }
+      .who { text-align: left; } .search { max-width: none; }
+      .brand .sub { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loader" id="loader"><div class="spin"></div><p class="muted" style="margin-top:12px;">Loading refund portal…</p></div>
+
+<div class="top">
+  <div class="brand">
+    <img id="logo" alt="WGS">
+    <span class="word" id="word">WG<b>S</b></span>
+    <span class="sub">Refund Portal</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="who" id="who"></div>
+  <a class="btn btn-primary" id="newBtn" href="#" target="_top">+ New refund request</a>
+</div>
+
+<div class="wrap" id="app">
+  <div class="bar">
+    <div class="tabs" id="tabs"></div>
+    <input type="search" class="search" id="q" placeholder="Search ID, passenger, ticket, client, TXN…">
+    <div class="spacer"></div>
+    <span class="muted small" id="stamp"></span>
+    <button class="btn btn-ghost" onclick="load()">Refresh</button>
+  </div>
+
+  <div id="reqView">
+    <div class="pipe" id="pipe"></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>Request</th><th>Requested</th><th>Passenger / client</th><th>Airline</th>
+          <th>Refund type</th><th class="num">Advised</th><th>Status</th><th>Waiting on</th><th class="num">Age</th><th>Action</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div id="more" class="more" style="display:none;"><button class="btn btn-ghost" onclick="showMore()">Show more</button></div>
+    </div>
+  </div>
+
+  <div id="dashView" style="display:none;"></div>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="dh" id="dh"></div>
+  <div class="db" id="db"></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────
+  var STAGES = [
+    { key: 'PENDING',        label: 'Pending',           owner: 'Refund Manager',      n: 6 },
+    { key: 'PROCESSING',     label: 'Processing',        owner: 'Refund Manager',      n: 7 },
+    { key: 'PROCESS DONE',   label: 'Process done',      owner: 'OPM / HOB',           n: 8 },
+    { key: 'SERVICE CHARGE', label: 'Service charge',    owner: 'OPM / HOB / Finance', n: 9 },
+    { key: 'POSTED',         label: 'Posted to Travcom', owner: 'Finance',             n: 10 },
+    { key: 'SETTLED',        label: 'Settled',           owner: 'Closed',              n: '✓' }
+  ];
+  var WAITING = { 'PENDING': 'Refund Manager', 'PROCESSING': 'Refund Manager', 'PROCESS DONE': 'OPM / HOB',
+                  'SERVICE CHARGE': 'OPM / HOB / Finance', 'POSTED': 'Finance', 'SETTLED': '—', 'CLOSED': '—' };
+  var PAGE = 150;
+
+  // ── State ─────────────────────────────────────────────────
+  var S = { session: null, rows: [], tab: 'queue', stage: '', q: '', limit: PAGE, openKey: null,
+            dy: String(new Date().getFullYear()), dm: 'ALL' };
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function isActor(s) { return s.roles.some(function (r) { return ['ADMIN','REFUND_MANAGER','OPM_HOB','FINANCE'].indexOf(r) !== -1; }); }
+
+  // ── Boot ──────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
+    google.script.run.withSuccessHandler(function (uri) {
+      if (!uri) return;
+      var img = document.getElementById('logo');
+      img.onload = function () { img.style.display = 'block'; document.getElementById('word').style.display = 'none'; };
+      img.src = uri;
+    }).getLogoDataUri();
+
+    google.script.run
+      .withSuccessHandler(function (s) {
+        S.session = s;
+        document.getElementById('newBtn').href = s.appUrl + '?page=form';
+        document.getElementById('who').innerHTML = '<strong>' + esc(s.name || s.email) + '</strong>'
+          + (s.name ? esc(s.email) + '<br>' : '')
+          + s.roleLabels.map(function (l) { return '<span class="chip">' + esc(l) + '</span>'; }).join('');
+        S.tab = isActor(s) ? 'queue' : (s.seeAll ? 'dash' : (s.viewAll ? 'all' : 'mine'));
+        load();
+      })
+      .withFailureHandler(deny)
+      .getSession();
+
+    var t = null;
+    document.getElementById('q').addEventListener('input', function () {
+      var v = this.value;
+      clearTimeout(t);
+      t = setTimeout(function () { S.q = v.trim().toLowerCase(); S.limit = PAGE; render(); }, 150);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+  });
+
+  function deny(err) {
+    document.getElementById('loader').classList.add('off');
+    document.getElementById('app').innerHTML = '<div class="deny"><h2 class="serif" style="margin-bottom:10px;">No access</h2>'
+      + esc(err && err.message ? err.message : String(err)) + '</div>';
+    document.getElementById('newBtn').style.display = 'none';
+  }
+
+  function load() {
+    google.script.run
+      .withSuccessHandler(function (res) {
+        S.rows = res.rows || [];
+        document.getElementById('stamp').textContent = 'Updated ' + fmtTime(res.generatedAt);
+        document.getElementById('loader').classList.add('off');
+        render();
+        if (S.openKey) { var r = findRow(S.openKey); if (r) openDrawer(r); }
+      })
+      .withFailureHandler(function (e) {
+        document.getElementById('loader').classList.add('off');
+        toast(e.message || String(e), true);
+      })
+      .listRequests();
+  }
+
+  // ── Filtering ─────────────────────────────────────────────
+  function key(r) { return r.id ? 'id:' + r.id : 'row:' + r.row; }
+  function findRow(k) { for (var i = 0; i < S.rows.length; i++) if (key(S.rows[i]) === k) return S.rows[i]; return null; }
+  function inQueue(r) { return r.canAdvance || r.canSettle; }
+
+  function tabRows() {
+    return S.rows.filter(function (r) {
+      if (S.tab === 'queue') return inQueue(r);
+      if (S.tab === 'mine')  return r.mine;
+      return true;
+    });
+  }
+
+  function visibleRows() {
+    return tabRows().filter(function (r) {
+      if (S.stage) {
+        if (S.stage === 'SETTLED' ? (r.stage !== 'SETTLED' && r.stage !== 'CLOSED') : r.stage !== S.stage) return false;
+      }
+      if (S.q) {
+        var hay = [r.id, r.pax, r.ticket, r.client, r.txnId, r.requestedBy, r.airline, r.refundType].join(' ').toLowerCase();
+        var terms = S.q.split(/\s+/);
+        for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  // ── Render ────────────────────────────────────────────────
+  function render() {
+    renderTabs();
+    var dash = S.tab === 'dash';
+    document.getElementById('reqView').style.display  = dash ? 'none' : 'block';
+    document.getElementById('dashView').style.display = dash ? 'block' : 'none';
+    document.getElementById('q').style.display        = dash ? 'none' : '';
+    if (dash) { renderDash(); return; }
+    renderPipe(); renderTable();
+  }
+
+  function renderTabs() {
+    var s = S.session, tabs = [];
+    if (s.seeAll) tabs.push(['dash', 'Dashboard', null]);
+    if (isActor(s)) tabs.push(['queue', 'My action queue', S.rows.filter(inQueue).length]);
+    if (s.viewAll) tabs.push(['all', 'All requests', null]);
+    tabs.push(['mine', 'My submissions', null]);
+    document.getElementById('tabs').innerHTML = tabs.map(function (t) {
+      return '<button class="tab' + (S.tab === t[0] ? ' on' : '') + '" onclick="setTab(\'' + t[0] + '\')">'
+        + esc(t[1]) + (t[2] ? '<span class="ct">' + t[2] + '</span>' : '') + '</button>';
+    }).join('');
+  }
+
+  function renderPipe() {
+    var base = tabRows();
+    document.getElementById('pipe').innerHTML = STAGES.map(function (st) {
+      var list = base.filter(function (r) {
+        return st.key === 'SETTLED' ? (r.stage === 'SETTLED' || r.stage === 'CLOSED') : r.stage === st.key;
+      });
+      var mineQ = list.some(inQueue);
+      return '<div class="stage' + (S.stage === st.key ? ' on' : '') + (mineQ ? ' mineq' : '') + '" onclick="setStage(\'' + st.key + '\')">'
+        + '<span class="n">' + st.n + '</span><div class="lbl">' + esc(st.label) + '</div>'
+        + '<div class="count">' + list.length + '</div><div class="own">' + esc(st.owner) + '</div></div>';
+    }).join('');
+  }
+
+  function renderTable() {
+    var rows = visibleRows();
+    var tb = document.getElementById('tbody');
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="10" class="empty">' + (S.tab === 'queue'
+        ? 'Nothing is waiting on you. Nice.' : 'No requests match.') + '</td></tr>';
+      document.getElementById('more').style.display = 'none';
+      return;
+    }
+    tb.innerHTML = rows.slice(0, S.limit).map(function (r) {
+      var age = ageDays(r);
+      var open = r.stage !== 'SETTLED' && r.stage !== 'CLOSED';
+      return '<tr class="r' + (S.openKey === key(r) ? ' sel' : '') + '" onclick="openKey(\'' + esc(key(r)) + '\')">'
+        + '<td><div class="id">' + esc(r.id || '(no ID)') + '</div><div class="sub2">' + esc(r.txnId) + '</div></td>'
+        + '<td>' + fmtDate(r.requestDate) + '<div class="sub2">' + esc(r.requestedBy) + '</div></td>'
+        + '<td>' + esc(r.pax || '—') + '<div class="sub2">' + esc(r.client) + (r.ticket ? ' · ' + esc(r.ticket) : '') + '</div></td>'
+        + '<td>' + esc(r.airline || '—') + '</td>'
+        + '<td>' + esc(r.refundType || '—') + '</td>'
+        + '<td class="num">' + money(r.amountAdvice) + '</td>'
+        + '<td>' + badge(r.stage) + '</td>'
+        + '<td>' + (inQueue(r) ? '<span class="act">You</span>' : esc(WAITING[r.stage] || '—')) + '</td>'
+        + '<td class="num' + (open && age > 14 ? ' age-warn' : '') + '">' + (age === null ? '—' : age + 'd') + '</td>'
+        + '<td>' + quickAction(r) + '</td>'
+        + '</tr>';
+    }).join('');
+    document.getElementById('more').style.display = rows.length > S.limit ? 'block' : 'none';
+  }
+
+  // Status dropdown in the table, laid out like the sheet's dropdown.
+  // Only the next stage the user is allowed to set is selectable; earlier
+  // and skipped stages show greyed out so the pipeline stays in order.
+  var PIPE = ['PENDING', 'PROCESSING', 'PROCESS DONE', 'SERVICE CHARGE', 'POSTED TO TRAVCOM'];
+
+  function quickAction(r) {
+    var back = r.revertTargets || [];
+    if (!r.canAdvance && !r.canSettle && !back.length) return '';
+    var k = esc(key(r)), cur = PIPE.indexOf(r.status);
+    var h = '<select class="qs" onclick="event.stopPropagation()" onchange="quickPick(\'' + k + '\',this)">';
+    if (cur === -1) h += '<option value="' + esc(r.status) + '" selected>' + esc(r.status) + '</option>';
+    PIPE.forEach(function (s, i) {
+      var isCur = i === cur, fwd = r.canAdvance && s === r.nextStatus, rev = back.indexOf(s) !== -1;
+      h += '<option value="' + s + '"' + (isCur ? ' selected' : '') + (!isCur && !fwd && !rev ? ' disabled' : '') + '>'
+        + (fwd ? '→ ' : rev ? '↩ ' : '') + s + '</option>';
+    });
+    if (r.canSettle) h += '<option value="__settle">→ CONFIRM SETTLEMENT…</option>';
+    if (back.indexOf('UNSETTLE') !== -1) h += '<option value="UNSETTLE">↩ UNDO SETTLEMENT…</option>';
+    h += '<option value="__open">VIEW / EDIT DETAILS…</option></select>';
+    return h;
+  }
+
+  function quickPick(k, sel) {
+    var r = findRow(k); if (!r) return;
+    var v = sel.value;
+    if (v === '__open' || v === '__settle') { sel.value = r.status; openKey(k); return; }
+    if (v === r.status) return;
+    if ((r.revertTargets || []).indexOf(v) !== -1) {
+      sel.value = r.status;
+      doRevert(r, v);
+      return;
+    }
+
+    var req = (S.session.transitions[r.status] || {}).require || [];
+    var missing = req.filter(function (f) { return r[f] === '' || r[f] === null || r[f] === undefined; });
+    if (missing.length) {
+      sel.value = r.status;
+      openKey(k);
+      toast('Fill in ' + missing.map(function (f) { return S.session.fields[f].label; }).join(' and ')
+            + ' first, then click Move to ' + v + '.', true);
+      return;
+    }
+    if (!window.confirm('Move ' + (r.id || 'this request') + ' (' + r.pax + ') to ' + v + '?\n\n'
+        + 'This stamps the stage date and emails the refund team, the consultant'
+        + (r.customerEmail ? ' and the client' : '') + '.')) {
+      sel.value = r.status;
+      return;
+    }
+
+    sel.disabled = true;
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res.ok) { toast(res.message, true); renderTable(); return; }
+        toast(res.message);
+        if (!res.row) { load(); return; }
+        res.row.mine = r.mine;
+        for (var i = 0; i < S.rows.length; i++) if (key(S.rows[i]) === k) S.rows[i] = res.row;
+        render();
+      })
+      .withFailureHandler(function (e) { toast(e.message || String(e), true); renderTable(); })
+      .updateRequest({ reqId: r.id, row: r.row, ticket: r.ticket, expectedStatus: r.status, fields: {}, advance: true });
+  }
+
+  // Super admin only. The server enforces this too; the UI just hides it.
+  function doRevert(r, target, reasonFromPanel) {
+    var label = target === 'UNSETTLE' ? 'undo the Finance settlement' : 'move it back to ' + target;
+    var reason = reasonFromPanel;
+    if (reason === undefined) {
+      reason = window.prompt('Revert ' + (r.id || 'this request') + ' (' + r.pax + ') and ' + label + '?\n\n'
+        + 'Stage dates after that point will be cleared. The refund team and CC list are emailed; the client is not.\n\n'
+        + 'Reason for the reversal (required):', '');
+      if (reason === null) return;
+    }
+    if (!String(reason).trim()) { toast('A reason is required to revert.', true); return; }
+
+    busy(true);
+    google.script.run
+      .withSuccessHandler(function (res) { done(res, key(r)); })
+      .withFailureHandler(function (e) { busy(false); toast(e.message || String(e), true); })
+      .revertRequest({ reqId: r.id, row: r.row, ticket: r.ticket, expectedStatus: r.status,
+                       toStatus: target, reason: reason });
+  }
+
+  function revertFromPanel() {
+    var r = findRow(S.openKey); if (!r) return;
+    var t = document.getElementById('revTo').value;
+    var why = document.getElementById('revWhy').value;
+    if (!armed2(document.getElementById('revBtn'), 'Click again to revert')) return;
+    armed = null;
+    doRevert(r, t, why);
+  }
+
+  // ── Dashboard (mirrors the Refund Operations Dashboard sheet) ──
+  function dt(iso) { return iso ? new Date(iso) : null; }
+  function dur(a, b) {
+    if (!a || !b) return null;
+    var d = (new Date(b) - new Date(a)) / 864e5;
+    return d < 0 ? null : d;            // negative gaps are data-entry errors; ignore them
+  }
+  function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+  function sum(rows, f) { return rows.reduce(function (t, r) { return t + (Number(r[f]) || 0); }, 0); }
+  function pct(n, d) { return d ? (n / d * 100).toFixed(1) + '%' : '0.0%'; }
+  function dd(n) { return n === null || n === undefined ? '—' : n.toFixed(1) + ' d'; }
+  function st(r) { return r.status === 'DONE' ? 'POSTED TO TRAVCOM' : r.status; }
+  var ST_ORDER = ['PENDING', 'PROCESSING', 'PROCESS DONE', 'SERVICE CHARGE', 'POSTED TO TRAVCOM'];
+  function reached(r, s) { return ST_ORDER.indexOf(st(r)) >= ST_ORDER.indexOf(s); }
+
+  function dashRows(monthToo) {
+    return S.rows.filter(function (r) {
+      var d = dt(r.requestDate); if (!d) return false;
+      if (S.dy !== 'ALL' && String(d.getFullYear()) !== S.dy) return false;
+      if (monthToo && S.dm !== 'ALL' && d.getMonth() !== Number(S.dm)) return false;
+      return true;
+    });
+  }
+
+  function setDash(k, v) { S[k] = v; renderDash(); }
+
+  function renderDash() {
+    var years = {};
+    S.rows.forEach(function (r) { if (r.requestDate) years[new Date(r.requestDate).getFullYear()] = 1; });
+    years[new Date().getFullYear()] = 1;
+    var rows = dashRows(true), n = rows.length;
+    var h = '';
+
+    // Filters
+    h += '<div class="dfilters"><h2 class="serif">Refund Operations Dashboard</h2>'
+      + '<label>Year</label><select onchange="setDash(\'dy\',this.value)">'
+      + '<option value="ALL"' + (S.dy === 'ALL' ? ' selected' : '') + '>ALL</option>'
+      + Object.keys(years).sort().reverse().map(function (y) {
+          return '<option' + (S.dy === y ? ' selected' : '') + '>' + y + '</option>'; }).join('')
+      + '</select><label>Month</label><select onchange="setDash(\'dm\',this.value)">'
+      + '<option value="ALL"' + (S.dm === 'ALL' ? ' selected' : '') + '>ALL</option>'
+      + MONTHS.map(function (m, i) {
+          return '<option value="' + i + '"' + (S.dm === String(i) ? ' selected' : '') + '>' + m.toUpperCase() + '</option>'; }).join('')
+      + '</select><span class="hint">Filtered by request date. Set MONTH to ALL for the full-year view.</span></div>';
+
+    // Request volume
+    var cnt = function (s) { return rows.filter(function (r) { return st(r) === s; }).length; };
+    var vol = [['Total Refunds', n], ['Pending', cnt('PENDING')], ['Processing', cnt('PROCESSING')],
+               ['Process Done', cnt('PROCESS DONE')], ['Service Charge', cnt('SERVICE CHARGE')],
+               ['Posted to Travcom', cnt('POSTED TO TRAVCOM')],
+               ['Voluntary', rows.filter(function (r) { return String(r.refundType).toUpperCase() === 'VOLUNTARY'; }).length]];
+    h += '<div class="dsect" style="margin-top:0;border-top-left-radius:0;border-top-right-radius:0;"><h3 class="serif">Request volume</h3><div class="kpis">'
+      + vol.map(function (k) { return '<div class="kpi"><div class="kl">' + k[0] + '</div><div class="kv">' + k[1] + '</div></div>'; }).join('')
+      + '</div></div>';
+
+    // Stage turnaround
+    var stages = [
+      ['Stage 1 · Request → Processing',        'requestDate',   'processingAt'],
+      ['Stage 2 · Processing → Process done',   'processingAt',  'processDoneAt'],
+      ['Stage 3 · Process done → Service charge','processDoneAt', 'serviceAt'],
+      ['Stage 4 · Service charge → Posted',     'serviceAt',     'postedAt'],
+      ['TOTAL · Request → Posted (end to end)', 'requestDate',   'postedAt']
+    ];
+    h += '<div class="dsect"><h3 class="serif">Stage turnaround <span>time to complete every stage (days)</span></h3><div class="dtable"><table>'
+      + '<tr><th>Stage</th><th>Completed</th><th>Avg days</th><th>Fastest</th><th>Slowest</th><th>Outstanding</th><th>% Completed</th></tr>'
+      + stages.map(function (s, i) {
+          var d = rows.map(function (r) { return dur(r[s[1]], r[s[2]]); }).filter(function (x) { return x !== null; });
+          return '<tr' + (i === 4 ? ' class="tot purple"' : '') + '><td>' + s[0] + '</td><td class="b">' + d.length + '</td>'
+            + '<td class="b">' + dd(avg(d)) + '</td><td class="g">' + dd(d.length ? Math.min.apply(null, d) : null) + '</td>'
+            + '<td class="o">' + dd(d.length ? Math.max.apply(null, d) : null) + '</td>'
+            + '<td>' + (n - d.length) + '</td><td>' + pct(d.length, n) + '</td></tr>';
+        }).join('') + '</table></div></div>';
+
+    // Funnel
+    var fun = [['Requests Raised', n],
+      ['Reached Processing',  rows.filter(function (r) { return r.processingAt  || reached(r, 'PROCESSING'); }).length],
+      ['Process Completed',   rows.filter(function (r) { return r.processDoneAt || reached(r, 'PROCESS DONE'); }).length],
+      ['Service Charged',     rows.filter(function (r) { return r.serviceAt     || reached(r, 'SERVICE CHARGE'); }).length],
+      ['Posted to Travcom',   rows.filter(function (r) { return r.postedAt      || reached(r, 'POSTED TO TRAVCOM'); }).length],
+      ['Settled by Finance',  rows.filter(function (r) { return r.settledAt; }).length]];
+    h += '<div class="dsect"><h3 class="serif">Stage completion funnel <span>how many requests have reached each milestone</span></h3><div class="kpis" style="grid-template-columns:repeat(6,1fr);">'
+      + fun.map(function (k) {
+          return '<div class="kpi"><div class="kl">' + k[0] + '</div><div class="kv">' + k[1] + '</div>'
+            + '<div class="kl">' + pct(k[1], n) + '</div></div>'; }).join('')
+      + '</div></div>';
+
+    // Disbursement type
+    var types = (S.session.disbursementTypes || []).slice();
+    var drow = function (label, list, dim) {
+      var ap = sum(list, 'approved'), pr = sum(list, 'profit');
+      var tat = avg(list.map(function (r) { return dur(r.requestDate, r.postedAt); }).filter(function (x) { return x !== null; }));
+      return '<tr' + (dim ? ' class="dim"' : '') + '><td>' + esc(label) + '</td><td>' + list.length + '</td><td>' + pct(list.length, n) + '</td>'
+        + '<td class="num">' + money(sum(list, 'amountAdvice')) + '</td><td class="num">' + money(ap) + '</td>'
+        + '<td class="num g">' + money(pr) + '</td><td>' + pct(pr, ap) + '</td><td class="b">' + dd(tat) + '</td></tr>';
+    };
+    var assigned = [];
+    h += '<div class="dsect"><h3 class="serif">Disbursement type <span>where refunds are settled</span></h3><div class="dtable"><table>'
+      + '<tr><th>Disbursement type</th><th>Count</th><th>% Share</th><th>Advised (₦)</th><th>Approved (₦)</th><th>Profit (₦)</th><th>Margin %</th><th>Avg TAT</th></tr>'
+      + types.map(function (t) {
+          var list = rows.filter(function (r) { return String(r.disbursement).toUpperCase() === t.toUpperCase(); });
+          assigned = assigned.concat(list);
+          return drow(t, list);
+        }).join('')
+      + drow('Not yet assigned', rows.filter(function (r) { return assigned.indexOf(r) === -1; }), true)
+      + '<tr class="tot"><td>TOTAL</td><td>' + n + '</td><td>100.0%</td><td class="num">' + money(sum(rows, 'amountAdvice'))
+      + '</td><td class="num">' + money(sum(rows, 'approved')) + '</td><td class="num">' + money(sum(rows, 'profit'))
+      + '</td><td>' + pct(sum(rows, 'profit'), sum(rows, 'approved')) + '</td><td>'
+      + dd(avg(rows.map(function (r) { return dur(r.requestDate, r.postedAt); }).filter(function (x) { return x !== null; }))) + '</td></tr>'
+      + '</table></div></div>';
+
+    // Financial performance
+    var adv = sum(rows, 'amountAdvice'), apr = sum(rows, 'approved'), pro = sum(rows, 'profit');
+    h += '<div class="dsect"><h3 class="serif">Financial performance</h3><div class="kpis k5">'
+      + '<div class="kpi"><div class="kl">Amount Advised to Clients (₦)</div><div class="kv money">' + money(adv) + '</div></div>'
+      + '<div class="kpi"><div class="kl">Total Approved Refund (₦)</div><div class="kv money">' + money(apr) + '</div></div>'
+      + '<div class="kpi hl"><div class="kl">Total Profit (₦)</div><div class="kv money">' + money(pro) + '</div></div>'
+      + '<div class="kpi"><div class="kl">Advised vs Approved</div><div class="kv money">' + pct(apr, adv) + '</div></div>'
+      + '<div class="kpi hl"><div class="kl">Profit Margin</div><div class="kv money">' + pct(pro, apr) + '</div></div>'
+      + '</div></div>';
+
+    // Status breakdown
+    var reachCol = { 'PROCESSING': 'processingAt', 'PROCESS DONE': 'processDoneAt', 'SERVICE CHARGE': 'serviceAt', 'POSTED TO TRAVCOM': 'postedAt' };
+    h += '<div class="dsect"><h3 class="serif">Status breakdown</h3><div class="dtable"><table>'
+      + '<tr><th>Status</th><th>Count</th><th>Advised (₦)</th><th>Approved (₦)</th><th>Profit (₦)</th><th>% of total</th><th>Avg days to reach</th></tr>'
+      + ST_ORDER.map(function (s) {
+          var list = rows.filter(function (r) { return st(r) === s; });
+          var reach = reachCol[s] ? avg(list.map(function (r) { return dur(r.requestDate, r[reachCol[s]]); }).filter(function (x) { return x !== null; })) : null;
+          return '<tr><td><strong>' + s + '</strong></td><td>' + list.length + '</td><td class="num">' + money(sum(list, 'amountAdvice'))
+            + '</td><td class="num">' + money(sum(list, 'approved')) + '</td><td class="num g">' + money(sum(list, 'profit'))
+            + '</td><td>' + pct(list.length, n) + '</td><td class="b">' + dd(reach) + '</td></tr>';
+        }).join('')
+      + '<tr class="tot"><td>TOTAL</td><td>' + n + '</td><td class="num">' + money(adv) + '</td><td class="num">' + money(apr)
+      + '</td><td class="num">' + money(pro) + '</td><td>' + pct(n, n) + '</td><td></td></tr>'
+      + '</table></div></div>';
+
+    // Monthly trend (year filter only)
+    var yr = dashRows(false);
+    var maxM = 1, months = MONTHS.map(function (m, i) {
+      var list = yr.filter(function (r) { return new Date(r.requestDate).getMonth() === i; });
+      if (list.length > maxM) maxM = list.length;
+      return [m, list];
+    });
+    var tatAll = function (list) { return avg(list.map(function (r) { return dur(r.requestDate, r.postedAt); }).filter(function (x) { return x !== null; })); };
+    var comp = function (list) { return list.filter(function (r) { return r.postedAt || st(r) === 'POSTED TO TRAVCOM'; }).length; };
+    h += '<div class="dsect"><h3 class="serif">Monthly trend <span>filtered by year only</span></h3><div class="dtable"><table>'
+      + '<tr><th>Month</th><th style="text-align:left;">Requests</th><th>Advised (₦)</th><th>Approved (₦)</th><th>Profit (₦)</th><th>Margin %</th><th>Avg TAT</th><th>Completed</th></tr>'
+      + months.map(function (m) {
+          var l = m[1], ap = sum(l, 'approved'), pr = sum(l, 'profit');
+          return '<tr><td>' + m[0] + '</td><td style="text-align:left;"><span class="bar-in" style="width:' + Math.round(l.length / maxM * 120) + 'px"></span>' + l.length + '</td>'
+            + '<td class="num">' + money(sum(l, 'amountAdvice')) + '</td><td class="num">' + money(ap) + '</td>'
+            + '<td class="num g">' + money(pr) + '</td><td>' + pct(pr, ap) + '</td><td class="b">' + dd(tatAll(l)) + '</td><td>' + comp(l) + '</td></tr>';
+        }).join('')
+      + '<tr class="tot"><td>YEAR TOTAL</td><td style="text-align:left;">' + yr.length + '</td><td class="num">' + money(sum(yr, 'amountAdvice'))
+      + '</td><td class="num">' + money(sum(yr, 'approved')) + '</td><td class="num">' + money(sum(yr, 'profit'))
+      + '</td><td>' + pct(sum(yr, 'profit'), sum(yr, 'approved')) + '</td><td>' + dd(tatAll(yr)) + '</td><td>' + comp(yr) + '</td></tr>'
+      + '</table></div></div>';
+
+    document.getElementById('dashView').innerHTML = h;
+  }
+
+  function setTab(t)   { S.tab = t; S.stage = ''; S.limit = PAGE; render(); }
+  function setStage(k) { S.stage = (S.stage === k ? '' : k); S.limit = PAGE; render(); }
+  function showMore()  { S.limit += PAGE; renderTable(); }
+
+  // ── Drawer ────────────────────────────────────────────────
+  function openKey(k) { var r = findRow(k); if (r) openDrawer(r); }
+
+  function openDrawer(r) {
+    S.openKey = key(r);
+    var s = S.session;
+    document.getElementById('dh').innerHTML =
+      '<div><div class="muted small">' + esc(r.txnId || '') + '</div><h2>' + esc(r.id || '(no ID)') + '</h2>'
+      + '<div style="margin-top:4px;">' + esc(r.pax) + ' &nbsp;' + badge(r.stage) + '</div></div>'
+      + '<button class="x" onclick="closeDrawer()" aria-label="Close">✕</button>';
+
+    var h = '';
+
+    // Action panel first: it is why the user opened the request
+    h += actionPanel(r) + revertPanel(r);
+
+    h += '<div class="sect">Progress</div>' + steps(r);
+
+    h += '<div class="sect">Request</div><dl>'
+      + dl('Ticket number', r.ticket) + dl('Client', r.client) + dl('Airline', r.airline)
+      + dl('Date of transaction', r.txnDate && r.txnDate.indexOf('T') > 0 ? fmtDate(r.txnDate) : r.txnDate)
+      + dl('Refund type', r.refundType) + dl('Issued from', r.issuedFrom)
+      + dl('Amount advised', money(r.amountAdvice)) + dl('Comment', r.comment)
+      + dl('Requested by', r.requestedBy + (r.requesterEmail ? ' (' + r.requesterEmail + ')' : ''))
+      + dl('Customer email(s)', r.customerEmail) + '</dl>';
+
+    h += '<div class="sect">Processing</div><dl>'
+      + dl('Disbursement type', r.disbursement) + dl('Approved refund', money(r.approved))
+      + dl('Service charge / profit', money(r.profit)) + dl('Currency', r.currency)
+      + dl('BSP RA no', r.bspRa) + dl('Remark', r.remark)
+      + (r.settledAt ? dl('Settlement', r.settlementType) + dl('Settlement ref', r.settlementRef)
+                      + dl('Settled by', r.settledBy + ' · ' + fmtTime(r.settledAt)) : '')
+      + dl('Last modified', (r.modifiedBy || '—') + (r.lastModified ? ' · ' + fmtTime(r.lastModified) : ''))
+      + '</dl>';
+
+    if (s.trackerUrl) {
+      h += '<p class="note"><a href="' + esc(s.trackerUrl + '&range=A' + r.row) + '" target="_blank" style="color:var(--orange);">Open row '
+        + r.row + ' in the tracker sheet ↗</a></p>';
+    }
+
+    h += '<div class="sect">Activity</div><div class="hist" id="hist"><span class="muted">Loading…</span></div>';
+
+    document.getElementById('db').innerHTML = h;
+    document.getElementById('drawer').classList.add('on');
+    document.getElementById('scrim').classList.add('on');
+    renderTable();
+
+    if (r.id) {
+      google.script.run.withSuccessHandler(function (list) {
+        var el = document.getElementById('hist');
+        if (!el || S.openKey !== key(r)) return;
+        el.innerHTML = list.length ? list.map(function (x) {
+          return '<div><span class="h1">' + esc(x.action === 'STATUS' ? x.from + ' → ' + x.to
+                 : x.action === 'SETTLED' ? 'Settled: ' + x.to
+                 : x.action === 'REVERTED' ? '↩ Reverted: ' + x.from + ' → ' + x.to : 'Edited') + '</span>'
+            + '<div class="muted">' + esc(x.user) + ' · ' + fmtTime(x.at) + '</div>'
+            + (x.details ? '<div>' + esc(x.details) + '</div>' : '') + '</div>';
+        }).join('') : '<span class="muted">No portal activity yet. Changes made before the portal, or directly in the sheet, are not listed here.</span>';
+      }).getRequestHistory(r.id);
+    } else {
+      document.getElementById('hist').innerHTML = '<span class="muted">Legacy row with no request ID.</span>';
+    }
+  }
+
+  function closeDrawer() {
+    S.openKey = null;
+    document.getElementById('drawer').classList.remove('on');
+    document.getElementById('scrim').classList.remove('on');
+    renderTable();
+  }
+
+  function actionPanel(r) {
+    var s = S.session;
+    if (!r.editable.length && !r.canAdvance && !r.canSettle) return '';
+    var t = s.transitions[r.status] || {};
+    var req = t.require || [];
+    var h = '<div class="sect">Your action</div><div class="panel">';
+
+    r.editable.forEach(function (k) {
+      var f = s.fields[k], v = r[k];
+      var star = (r.canAdvance && req.indexOf(k) !== -1) ? ' <span class="req">*</span>' : '';
+      h += '<div class="fld"><label>' + esc(f.label) + star + '</label>';
+      if (f.type === 'list') {
+        h += '<select data-k="' + k + '"><option value="">Select…</option>'
+          + s.disbursementTypes.map(function (o) {
+              return '<option' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>';
+            }).join('') + '</select>';
+      } else if (k === 'remark' || f.type === 'emails') {
+        h += '<textarea rows="2" data-k="' + k + '">' + esc(v || '') + '</textarea>';
+      } else {
+        h += '<input type="text" data-k="' + k + '" value="' + esc(v === null || v === undefined ? '' : v) + '"'
+          + (f.type === 'money' ? ' inputmode="decimal" placeholder="0.00"' : '') + '>';
+      }
+      h += '</div>';
+    });
+
+    h += '<div class="btnrow">';
+    if (r.editable.length) h += '<button class="btn btn-ghost" id="saveBtn" onclick="save(false)">Save changes</button>';
+    if (r.canAdvance) h += '<button class="btn btn-primary" id="advBtn" onclick="save(true)">Move to ' + esc(r.nextStatus) + '</button>';
+    h += '</div>';
+    if (r.canAdvance) {
+      h += '<p class="note">Moving the request stamps the stage date and emails the refund team, the consultant'
+        + (r.customerEmail ? ' and the client' : '') + '.' + (req.length ? ' Fields marked * are required first.' : '') + '</p>';
+    }
+
+    if (r.canSettle) {
+      var guess = /LEDGER/i.test(r.disbursement) ? 1 : /DEBT/i.test(r.disbursement) ? 2 : 0;
+      h += '<div style="border-top:1px solid var(--line);margin:14px 0 12px;"></div>'
+        + '<div class="fld"><label>Settlement output <span class="req">*</span></label><select id="setOut">'
+        + s.settlementOutputs.map(function (o, i) { return '<option' + (i === guess ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('')
+        + '</select></div>'
+        + '<div class="fld"><label>Payment / journal reference</label><input type="text" id="setRef" placeholder="e.g. bank ref, Travcom journal no"></div>'
+        + '<button class="btn btn-dark" id="setBtn" onclick="settle()">Confirm settlement</button>'
+        + '<p class="note">Confirms the money has reached the client and closes the request.</p>';
+    }
+    return h + '</div>';
+  }
+
+  function revertPanel(r) {
+    var t = r.revertTargets || [];
+    if (!t.length) return '';
+    return '<div class="sect" style="color:var(--red);border-color:#F3C7C7;">Super admin · revert</div>'
+      + '<div class="panel" style="border-color:#F3C7C7;background:#FFF7F7;">'
+      + '<div class="fld"><label>Move back to</label><select id="revTo">'
+      + t.map(function (x) {
+          return '<option value="' + esc(x) + '">' + (x === 'UNSETTLE' ? 'UNDO SETTLEMENT (stay POSTED)' : esc(x)) + '</option>';
+        }).join('')
+      + '</select></div>'
+      + '<div class="fld"><label>Reason <span class="req">*</span></label>'
+      + '<textarea id="revWhy" rows="2" placeholder="Why is this being reverted?"></textarea></div>'
+      + '<button class="btn" style="background:var(--red);color:#fff;" id="revBtn" onclick="revertFromPanel()">Revert</button>'
+      + '<p class="note">Clears the stage dates after the chosen status (and any settlement), logs the old values '
+      + 'in the Audit Log and emails the refund team. The client is not emailed.</p></div>';
+  }
+
+  function steps(r) {
+    var pts = [
+      ['Requested', r.requestDate], ['Processing', r.processingAt], ['Process done', r.processDoneAt],
+      ['Service charge', r.serviceAt], ['Posted to Travcom', r.postedAt], ['Settled', r.settledAt]
+    ];
+    var order = ['PENDING', 'PROCESSING', 'PROCESS DONE', 'SERVICE CHARGE', 'POSTED', 'SETTLED'];
+    var idx = r.stage === 'CLOSED' ? 5 : order.indexOf(r.stage);
+    var prev = null;
+    return '<ul class="steps">' + pts.map(function (p, i) {
+      var cls = i < idx || (i === idx && i === 5) ? 'done' : (i === idx ? 'now' : '');
+      if (r.stage === 'CLOSED' && i === 5) cls = 'done';
+      var dur = (p[1] && prev) ? Math.round((new Date(p[1]) - new Date(prev)) / 864e5 * 10) / 10 : null;
+      if (p[1]) prev = p[1];
+      return '<li class="' + cls + '"><span class="dot"></span><span>' + esc(p[0])
+        + (dur !== null ? ' <span class="dur">(+' + dur + 'd)</span>' : '') + '</span>'
+        + '<span class="when">' + (p[1] ? fmtTime(p[1]) : (r.stage === 'CLOSED' && i === 5 ? 'closed' : '')) + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  // ── Actions ───────────────────────────────────────────────
+  var armed = null;
+  function armed2(btn, label) {
+    // Two-click confirm for status moves: the change emails the client.
+    if (armed === btn.id) return true;
+    armed = btn.id;
+    btn.dataset.label = btn.textContent;
+    btn.textContent = label;
+    btn.classList.add('confirming');
+    setTimeout(function () {
+      if (armed === btn.id) { armed = null; btn.textContent = btn.dataset.label; btn.classList.remove('confirming'); }
+    }, 4000);
+    return false;
+  }
+
+  function busy(on) {
+    ['saveBtn', 'advBtn', 'setBtn', 'revBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) b.disabled = on; });
+  }
+
+  function save(advance) {
+    var r = findRow(S.openKey); if (!r) return;
+    if (advance && !armed2(document.getElementById('advBtn'), 'Click again to confirm')) return;
+    armed = null;
+
+    var fields = {};
+    document.querySelectorAll('#db [data-k]').forEach(function (el) { fields[el.dataset.k] = el.value; });
+
+    busy(true);
+    google.script.run
+      .withSuccessHandler(function (res) { done(res); })
+      .withFailureHandler(function (e) { busy(false); toast(e.message || String(e), true); })
+      .updateRequest({ reqId: r.id, row: r.row, ticket: r.ticket, expectedStatus: r.status, fields: fields, advance: advance });
+  }
+
+  function settle() {
+    var r = findRow(S.openKey); if (!r) return;
+    if (!armed2(document.getElementById('setBtn'), 'Click again to confirm')) return;
+    armed = null;
+    busy(true);
+    google.script.run
+      .withSuccessHandler(function (res) { done(res); })
+      .withFailureHandler(function (e) { busy(false); toast(e.message || String(e), true); })
+      .confirmSettlement({ reqId: r.id, row: r.row, ticket: r.ticket,
+        output: document.getElementById('setOut').value, ref: document.getElementById('setRef').value });
+  }
+
+  // k is passed when the action came from the table rather than the side panel.
+  function done(res, k) {
+    busy(false);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message);
+    if (!res.row) { load(); return; }
+    var fromPanel = !k;
+    k = k || S.openKey;
+    res.row.mine = (findRow(k) || {}).mine;
+    for (var i = 0; i < S.rows.length; i++) if (key(S.rows[i]) === k) S.rows[i] = res.row;
+    render();
+    if (fromPanel || S.openKey === k) openDrawer(res.row);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function dl(k, v) { return '<dt>' + esc(k) + '</dt><dd>' + (v === '' || v === null || v === undefined ? '—' : esc(v)) + '</dd>'; }
+  function badge(stage) {
+    var lbl = { 'POSTED': 'POSTED TO TRAVCOM', 'CLOSED': 'CLOSED' }[stage] || stage;
+    return '<span class="badge b-' + String(stage).replace(/\s+/g, '-') + '">' + esc(lbl) + '</span>';
+  }
+  function money(n) {
+    if (n === null || n === undefined || n === '') return '—';
+    return '₦' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function fmtTime(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' '
+      + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
+  function ageDays(r) {
+    if (!r.requestDate) return null;
+    var end = r.settledAt || (r.stage === 'CLOSED' ? r.postedAt : new Date().toISOString());
+    if (!end) return null;   // closed legacy row with no posted date
+    return Math.max(0, Math.round((new Date(end) - new Date(r.requestDate)) / 864e5));
+  }
+  var tt = null;
+  function toast(msg, err) {
+    var el = document.getElementById('toast');
+    el.textContent = msg; el.className = 'toast on' + (err ? ' err' : '');
+    clearTimeout(tt); tt = setTimeout(function () { el.className = 'toast'; }, err ? 7000 : 3500);
+  }
+</script>
+</body>
+</html>

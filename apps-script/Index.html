@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #F4F4F4;
+      color: #23292B;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 540px; margin: 0 auto; padding: 16px; }
+
+    /* Header */
+    .header {
+      background: #23292B;
+      border-radius: 12px 12px 0 0;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header .logo {
+      color: #F58220;
+      font-family: Garamond, Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .header .sub { color: #808080; font-size: 12px; }
+    .header .brand-logo {
+      height: 30px;
+      width: auto;
+      max-width: 170px;
+      display: block;
+    }
+
+    .title-bar {
+      background: #FDF0E2;
+      padding: 13px 24px;
+      border-bottom: 1px solid #F0DFC8;
+    }
+    .title-bar h1 {
+      font-family: Garamond, Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .form-card {
+      background: #fff;
+      padding: 22px 24px;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Section divider */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #F58220;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 20px 0 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #F0DFC8;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+
+    /* Fields */
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    label .req { color: #E65100; }
+    label .opt { color: #AAA; font-weight: 400; text-transform: none; font-size: 11px; }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid #DDD;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #23292B;
+      background: #FAFAFA;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #F58220;
+      background: #fff;
+    }
+    input[readonly] {
+      background: #F0F0F0;
+      color: #666;
+      cursor: not-allowed;
+      border-color: #E0E0E0;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid #DDD;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #23292B;
+      background: #FAFAFA;
+      resize: vertical;
+      min-height: 62px;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #F58220;
+      background: #fff;
+    }
+
+    .amt-hint {
+      display: none;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #319F4E;
+      font-weight: 600;
+    }
+    .amt-hint.visible { display: block; }
+    .amt-hint.bad { color: #E65100; }
+
+    .air-flag {
+      display: none;
+      margin-top: 5px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      padding: 5px 8px;
+      border-radius: 4px;
+    }
+    .air-flag.visible { display: block; }
+    .air-flag.ok    { background:#EAF7EE; color:#1B5E20; }
+    .air-flag.added { background:#EEF2FB; color:#1A3E7A; }
+    .air-flag.warn  { background:#FFF4E5; color:#7A3B00; }
+
+    .email-count {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #888;
+    }
+    .email-count.has { color: #319F4E; font-weight: 600; }
+    .email-count.bad { color: #E65100; font-weight: 600; }
+
+    /* Searchable TXN dropdown */
+    .txn-wrapper { position: relative; }
+
+    #txnSearch {
+      width: 100%;
+      padding: 9px 11px 9px 34px;
+      border: 1.5px solid #DDD;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #FAFAFA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23AAA' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+    }
+    #txnSearch:focus {
+      outline: none;
+      border-color: #F58220;
+      background-color: #fff;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23F58220' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E");
+    }
+
+    .txn-list {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #fff;
+      border: 1.5px solid #DDD;
+      border-radius: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .txn-list.open { display: block; }
+    .txn-item {
+      padding: 9px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid #F5F5F5;
+      transition: background 0.1s;
+    }
+    .txn-item:last-child { border-bottom: none; }
+    .txn-item:hover, .txn-item.highlighted { background: #FDF0E2; }
+    .txn-item .txn-id { font-weight: 700; color: #23292B; }
+    .txn-item .txn-pax { color: #888; font-size: 12px; margin-top: 1px; }
+    .src-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      margin-left: 6px;
+      vertical-align: 1px;
+    }
+    .src-tag.current { background: #EAF7EE; color: #1B5E20; }
+    .src-tag.archive { background: #EEF2FB; color: #1A3E7A; }
+    .txn-item.no-result { color: #AAA; cursor: default; }
+    .txn-item.no-result:hover { background: #fff; }
+
+    .txn-selected-badge {
+      display: none;
+      margin-top: 6px;
+      padding: 6px 10px;
+      background: #FDF0E2;
+      border: 1px solid #F0DFC8;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #23292B;
+    }
+    .txn-selected-badge.visible { display: block; }
+    .txn-selected-badge .clear-btn {
+      float: right;
+      color: #E65100;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1;
+      margin-top: -1px;
+    }
+
+    /* Auto-populated preview */
+    .preview {
+      background: #F8F9FA;
+      border: 1px solid #E8E8E8;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    .preview.visible { display: block; }
+    .preview-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #F58220;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .pv-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 12px;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .pv-row:last-child { border-bottom: none; }
+    .pv-row .lbl { color: #888; }
+    .pv-row .val { color: #23292B; font-weight: 600; text-align: right; max-width: 60%; }
+
+    /* Two-col grid */
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn-primary { background: #F58220; color: #fff; }
+    .btn-primary:hover { background: #D4711A; }
+    .btn-primary:disabled { background: #CCC; cursor: not-allowed; }
+
+    .spinner {
+      display: inline-block;
+      width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 7px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result {
+      padding: 12px 14px;
+      border-radius: 7px;
+      margin-top: 14px;
+      font-size: 13px;
+      display: none;
+      line-height: 1.5;
+    }
+    .result.success { background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; display: block; }
+    .result.error   { background: #FFEBEE; color: #B71C1C; border: 1px solid #EF9A9A; display: block; }
+
+    /* Page loader */
+    .page-loader {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; z-index: 999;
+    }
+    .page-loader.hidden { display: none; }
+    .big-spin {
+      width: 36px; height: 36px;
+      border: 3px solid #F58220;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .page-loader p { margin-top: 12px; color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div class="page-loader" id="pageLoader">
+  <div class="big-spin"></div>
+  <p>Loading form...</p>
+</div>
+
+<div class="container">
+  <div class="header">
+    <img id="brandLogo" class="brand-logo" alt="WGS" style="display:none;">
+    <span class="logo" id="brandText">WGS</span>
+    <span class="sub">Refund Request Form</span>
+  </div>
+  <div class="title-bar"><h1>Submit a Refund Request</h1></div>
+  <div class="form-card">
+
+    <!-- ── SECTION: Transaction ───────────────────────────── -->
+    <div class="section-title">Transaction Details</div>
+
+    <!-- Searchable TXN ID -->
+    <div class="field">
+      <label>Transaction ID <span class="req">*</span></label>
+      <div class="txn-wrapper">
+        <input type="text" id="txnSearch" placeholder="Type to search TRX ID, PNR, passenger, ticket or client..." autocomplete="off">
+        <div class="txn-list" id="txnList"></div>
+      </div>
+      <div class="txn-selected-badge" id="txnBadge">
+        <span id="txnBadgeText"></span>
+        <span class="clear-btn" onclick="clearTxn()">&#x2715;</span>
+      </div>
+      <input type="hidden" id="txnId">
+      <input type="hidden" id="ticketNo">
+      <input type="hidden" id="paxName">
+
+      <!-- Auto-populated preview -->
+      <div class="preview" id="txnPreview">
+        <div class="preview-title">Auto-populated from Refunds sheet</div>
+        <div class="pv-row"><span class="lbl">Ticket Number</span><span class="val" id="pvTicket">—</span></div>
+        <div class="pv-row"><span class="lbl">Passenger</span><span class="val" id="pvPax">—</span></div>
+        <div class="pv-row"><span class="lbl">Client</span><span class="val" id="pvClient">—</span></div>
+      </div>
+    </div>
+
+    <!-- Airline -->
+    <div class="field">
+      <label>Airline <span class="req">*</span></label>
+      <select id="airline" onchange="onAirlineChange()">
+        <option value="">Select airline...</option>
+      </select>
+      <div class="air-flag" id="airFlag"></div>
+    </div>
+
+    <!-- Refund Type -->
+    <div class="field">
+      <label>Refund Type <span class="req">*</span></label>
+      <select id="refundType" onchange="validate()">
+        <option value="">Select refund type...</option>
+      </select>
+    </div>
+
+    <!-- Issued From -->
+    <div class="field">
+      <label>Issued From <span class="req">*</span></label>
+      <select id="issuedFrom" onchange="onIssuedFromChange()">
+        <option value="">Select...</option>
+      </select>
+      <div class="air-flag" id="issuedFlag"></div>
+    </div>
+
+    <!-- Amount Advice to the Client -->
+    <div class="field">
+      <label>Amount Advice to the Client (NGN)
+        <span class="opt">(optional, the amount quoted to the customer)</span></label>
+      <input type="text" id="amountAdvice" inputmode="decimal"
+             placeholder="e.g. 450000" oninput="onAmountAdviceInput()">
+      <div class="amt-hint" id="amtHint"></div>
+    </div>
+
+    <!-- Comment -->
+    <div class="field">
+      <label>Comment <span class="opt">(optional, notes for the refund manager)</span></label>
+      <textarea id="comment" placeholder="Any additional context, e.g. partial refund requested, urgent, BSP reference..."></textarea>
+    </div>
+
+    <!-- ── SECTION: Requester ─────────────────────────────── -->
+    <div class="section-title">Requester Information</div>
+
+    <div class="field">
+      <label>Requested By <span class="req">*</span></label>
+      <select id="requestedBy" onchange="onStaffSelect()">
+        <option value="">Select your name...</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Your Email <span class="opt">(auto-filled, you will receive a confirmation)</span></label>
+      <input type="text" id="requestedByEmail" placeholder="Auto-filled on name selection" readonly>
+    </div>
+
+    <!-- ── SECTION: Customer ──────────────────────────────── -->
+    <div class="section-title">Customer Information</div>
+
+    <div class="field">
+      <label>Customer Email(s) <span class="opt">(optional, separate multiple with commas)</span></label>
+      <textarea id="customerEmail" style="min-height:52px;"
+        placeholder="customer@example.com, finance@client.com, accounts@client.com"
+        oninput="showEmailCount()"></textarea>
+      <div class="email-count" id="emailCount"></div>
+    </div>
+
+    <!-- Submit -->
+    <button class="btn btn-primary" id="submitBtn" onclick="submitForm()" disabled>
+      Submit Refund Request
+    </button>
+
+    <div class="result" id="resultMsg"></div>
+
+  </div><!-- /form-card -->
+</div><!-- /container -->
+
+<script>
+  // ── State ─────────────────────────────────────────────────
+  var allTxns     = [];
+  var selectedTxn = null;
+
+  // ── Boot ──────────────────────────────────────────────────
+  var staffList = [];   // name → email map loaded from Data Validation sheet
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Load all four datasets in parallel
+    var txnDone = false, airlineDone = false, typeDone = false,
+        staffDone = false, issuedDone = false;
+
+    function checkDone() {
+      if (txnDone && airlineDone && typeDone && staffDone && issuedDone) hideLoader();
+    }
+
+    // The transaction list is NOT preloaded. There are ~10,700 records
+    // (about 2.2 MB), which is what left this dropdown empty. Results now
+    // come back per keystroke from searchTransactions().
+    txnDone = true;
+    checkDone();
+
+    google.script.run
+      .withSuccessHandler(function (airlines) {
+        var sel = document.getElementById('airline');
+        (airlines || []).forEach(function (a) {
+          var opt = document.createElement('option');
+          opt.value = a; opt.textContent = a;
+          sel.appendChild(opt);
+        });
+        airlineDone = true;
+        checkDone();
+      })
+      .withFailureHandler(loaderError)
+      .getAirlineOptions();
+
+    google.script.run
+      .withSuccessHandler(function (types) {
+        var sel = document.getElementById('refundType');
+        (types || []).forEach(function (t) {
+          var opt = document.createElement('option');
+          opt.value = t; opt.textContent = t;
+          sel.appendChild(opt);
+        });
+        typeDone = true;
+        checkDone();
+      })
+      .withFailureHandler(loaderError)
+      .getRefundTypes();
+
+    google.script.run
+      .withSuccessHandler(function (staff) {
+        staffList = staff || [];
+        var sel = document.getElementById('requestedBy');
+        staffList.forEach(function (s) {
+          var opt = document.createElement('option');
+          opt.value = s.name;
+          opt.dataset.email = s.email;
+          opt.textContent = s.name;
+          sel.appendChild(opt);
+        });
+        staffDone = true;
+        checkDone();
+      })
+      .withFailureHandler(loaderError)
+      .getStaffList();
+
+    google.script.run
+      .withSuccessHandler(function (list) {
+        var sel = document.getElementById('issuedFrom');
+        (list || []).forEach(function (v) {
+          var o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          sel.appendChild(o);
+        });
+        issuedDone = true;
+        checkDone();
+      })
+      .withFailureHandler(loaderError)
+      .getIssuedFromOptions();
+
+    // Logo loads independently: a failure here must never block the form.
+    google.script.run
+      .withSuccessHandler(function (uri) {
+        if (!uri) return;                       // keep the wordmark
+        var img = document.getElementById('brandLogo');
+        img.onload = function () {
+          document.getElementById('brandText').style.display = 'none';
+          img.style.display = 'block';
+        };
+        img.src = uri;
+      })
+      .withFailureHandler(function () { /* wordmark stays */ })
+      .getLogoDataUri();
+
+    // Opened from the Transactions Database launcher with ?txn=<id>:
+    // search for it straight away and select it if it is unambiguous.
+    google.script.url.getLocation(function (loc) {
+      var txn = loc.parameter && loc.parameter.txn;
+      if (!txn) return;
+      searchEl.value = txn;
+      google.script.run.withSuccessHandler(function (res) {
+        allTxns = (res && res.results) || [];
+        if (allTxns.length === 1) selectTxn(0); else renderList(res);
+      }).searchTransactions(txn, 40);
+    });
+
+  });
+
+  function loaderError(err) {
+    hideLoader();
+    var m = (err && err.message) ? err.message : String(err);
+    showResult('error',
+      '<strong>Could not load form data.</strong><br>' + m
+      + '<br><span style="font-size:11px;">If this mentions a missing sheet, '
+      + 'check the tab names in the tracker, then reload this page.</span>');
+  }
+
+  // ── TXN Search ────────────────────────────────────────────
+  var searchEl  = document.getElementById('txnSearch');
+  var listEl    = document.getElementById('txnList');
+  var hiIndex   = -1;
+
+  var searchTimer = null, searchSeq = 0;
+
+  searchEl.addEventListener('input', function () {
+    hiIndex = -1;
+    var q = this.value.trim();
+    clearTimeout(searchTimer);
+    // Debounced so a fast typist does not queue a request per character
+    searchTimer = setTimeout(function () { runSearch(q); }, 220);
+  });
+
+  function runSearch(q) {
+    var seq = ++searchSeq;
+    showListMessage('Searching...');
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (seq !== searchSeq) return;          // a newer keystroke won
+        allTxns = (res && res.results) ? res.results : [];
+        renderList(res);
+      })
+      .withFailureHandler(function (err) {
+        if (seq !== searchSeq) return;
+        showListMessage('Search failed: ' + (err && err.message ? err.message : err));
+      })
+      .searchTransactions(q, 40);
+  }
+
+  function showListMessage(msg) {
+    listEl.innerHTML = '<div class="txn-item no-result">' + esc(msg) + '</div>';
+    listEl.classList.add('open');
+  }
+
+  searchEl.addEventListener('keydown', function (ev) {
+    var items = listEl.querySelectorAll('.txn-item:not(.no-result)');
+    if (ev.key === 'ArrowDown') {
+      ev.preventDefault();
+      hiIndex = Math.min(hiIndex + 1, items.length - 1);
+      highlightItem(items);
+    } else if (ev.key === 'ArrowUp') {
+      ev.preventDefault();
+      hiIndex = Math.max(hiIndex - 1, 0);
+      highlightItem(items);
+    } else if (ev.key === 'Enter' && hiIndex >= 0 && items[hiIndex]) {
+      selectTxn(items[hiIndex].dataset.idx);
+    } else if (ev.key === 'Escape') {
+      closeList();
+    }
+  });
+
+  searchEl.addEventListener('focus', function () {
+    if (!selectedTxn) runSearch(this.value.trim());
+  });
+
+  document.addEventListener('click', function (ev) {
+    if (!ev.target.closest('.txn-wrapper')) closeList();
+  });
+
+  function renderList(res) {
+    var rows  = (res && res.results) ? res.results : [];
+    var total = (res && res.total) ? res.total : 0;
+
+    listEl.innerHTML = '';
+
+    if (!rows.length) {
+      showListMessage('No transactions found');
+      return;
+    }
+
+    rows.forEach(function (t, i) {
+      var div = document.createElement('div');
+      div.className = 'txn-item';
+      div.dataset.idx = i;
+      var tag = (t.source === '2025')
+        ? '<span class="src-tag archive">2025</span>'
+        : '<span class="src-tag current">CURRENT</span>';
+      var sub = esc(t.pax || '(no passenger name)');
+      if (t.ticketNo) sub += ' &nbsp;·&nbsp; ' + esc(t.ticketNo);
+      if (t.client)   sub += ' &nbsp;·&nbsp; ' + esc(t.client);
+      div.innerHTML = '<div class="txn-id">' + esc(t.txnId) + tag + '</div>'
+        + '<div class="txn-pax">' + sub + '</div>';
+      div.addEventListener('mousedown', function (ev) {
+        ev.preventDefault();
+        selectTxn(this.dataset.idx);
+      });
+      listEl.appendChild(div);
+    });
+
+    if (res && res.shown < total) {
+      var foot = document.createElement('div');
+      foot.className = 'txn-item no-result';
+      foot.textContent = 'Showing ' + res.shown + ' of ' + total.toLocaleString()
+                       + ' transactions. Keep typing to narrow.';
+      listEl.appendChild(foot);
+    }
+
+    listEl.classList.add('open');
+  }
+
+  function highlightItem(items) {
+    items.forEach(function (el) { el.classList.remove('highlighted'); });
+    if (items[hiIndex]) {
+      items[hiIndex].classList.add('highlighted');
+      items[hiIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function selectTxn(idx) {
+    var t = allTxns[idx];
+    if (!t) return;
+    selectedTxn = t;
+
+    document.getElementById('txnId').value    = t.txnId;
+    document.getElementById('ticketNo').value = t.ticketNo || '';
+    document.getElementById('paxName').value  = t.pax || '';
+
+    // Show badge
+    var badge = document.getElementById('txnBadge');
+    var srcTxt = (t.source === '2025') ? '  [2025 archive]' : '';
+    document.getElementById('txnBadgeText').textContent =
+      t.txnId + '  —  ' + (t.pax || '(no name)')
+      + (t.ticketNo ? '  ·  ' + t.ticketNo : '') + srcTxt;
+    badge.classList.add('visible');
+
+    // Hide search, show preview
+    searchEl.value = '';
+    closeList();
+
+    // Populate preview
+    document.getElementById('pvTicket').textContent = t.ticketNo || '—';
+    document.getElementById('pvPax').textContent    = t.pax      || '—';
+    document.getElementById('pvClient').textContent = t.client   || '—';
+    document.getElementById('txnPreview').classList.add('visible');
+
+    // ── Auto-set + validate airline ───────────────────────────
+    // The transaction's airline arrives already resolved from its IATA
+    // code by the server. If it is somehow not in the dropdown (a rare
+    // carrier, or a multi-carrier itinerary like "AIR FRANCE / KLM"),
+    // it is injected so the field is never left blank.
+    var airSel = document.getElementById('airline');
+    var flag   = document.getElementById('airFlag');
+
+    if (t.airline) {
+      var want  = String(t.airline).trim().toUpperCase();
+      var found = false;
+
+      for (var i = 0; i < airSel.options.length; i++) {
+        if (String(airSel.options[i].value).trim().toUpperCase() === want) {
+          airSel.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        var opt = document.createElement('option');
+        opt.value = t.airline;
+        opt.textContent = t.airline;
+        airSel.insertBefore(opt, airSel.options[1] || null);
+        airSel.value = t.airline;
+        setAirFlag('added', 'Airline "' + esc(t.airline)
+          + '" was added from the transaction record.');
+      } else {
+        setAirFlag('ok', 'Airline auto-filled from the transaction record.');
+      }
+    } else {
+      airSel.selectedIndex = 0;
+      setAirFlag('warn', 'This transaction has no airline on record. Please select one.');
+    }
+
+    // ── Auto-set + validate Issued From ───────────────────────
+    // Present on the current REFUNDS feed (column G); the 2025 archive
+    // does not carry it, so those rows need a manual selection.
+    var isSel  = document.getElementById('issuedFrom');
+    if (t.issuedFrom) {
+      var wantIF = String(t.issuedFrom).trim().toUpperCase();
+      var hitIF  = false;
+      for (var m = 0; m < isSel.options.length; m++) {
+        if (String(isSel.options[m].value).trim().toUpperCase() === wantIF) {
+          isSel.selectedIndex = m; hitIF = true; break;
+        }
+      }
+      if (!hitIF) {
+        var oIF = document.createElement('option');
+        oIF.value = t.issuedFrom; oIF.textContent = t.issuedFrom;
+        isSel.insertBefore(oIF, isSel.options[1] || null);
+        isSel.value = t.issuedFrom;
+      }
+      setIssuedFlag('ok', 'Issued From auto-filled from the transaction record.');
+    } else {
+      isSel.selectedIndex = 0;
+      setIssuedFlag('warn', (t.source === '2025')
+        ? 'The 2025 archive does not record Issued From. Please select it.'
+        : 'This transaction has no Issued From on record. Please select it.');
+    }
+
+    validate();
+  }
+
+  function clearTxn() {
+    selectedTxn = null;
+    document.getElementById('txnId').value    = '';
+    document.getElementById('ticketNo').value = '';
+    document.getElementById('paxName').value  = '';
+    document.getElementById('txnBadge').classList.remove('visible');
+    document.getElementById('txnPreview').classList.remove('visible');
+    clearAirFlag();
+    clearIssuedFlag();
+    searchEl.value = '';
+    searchEl.focus();
+    validate();
+  }
+
+  function closeList() { listEl.classList.remove('open'); hiIndex = -1; }
+
+  // ── Staff name → email auto-fill ─────────────────────────
+  function onStaffSelect() {
+    var sel = document.getElementById('requestedBy');
+    var opt = sel.options[sel.selectedIndex];
+    var email = (opt && opt.dataset.email) ? opt.dataset.email : '';
+    document.getElementById('requestedByEmail').value = email;
+    validate();
+  }
+
+  // ── Airline flag helpers ──────────────────────────────────
+  function setAirFlag(kind, msg) {
+    var el = document.getElementById('airFlag');
+    el.className = 'air-flag ' + kind + ' visible';
+    el.innerHTML = msg;
+  }
+  function clearAirFlag() {
+    document.getElementById('airFlag').className = 'air-flag';
+  }
+  function setIssuedFlag(kind, msg) {
+    var el = document.getElementById('issuedFlag');
+    el.className = 'air-flag ' + kind + ' visible';
+    el.innerHTML = msg;
+  }
+  function clearIssuedFlag() {
+    document.getElementById('issuedFlag').className = 'air-flag';
+  }
+  function onIssuedFromChange() {
+    clearIssuedFlag();
+    validate();
+  }
+
+  function onAirlineChange() {
+    clearAirFlag();
+    validate();
+  }
+
+  // ── Multi-email counter ───────────────────────────────────
+  function showEmailCount() {
+    var raw = document.getElementById('customerEmail').value;
+    var el  = document.getElementById('emailCount');
+
+    if (!raw.trim()) { el.textContent = ''; el.className = 'email-count'; return; }
+
+    var parts = raw.split(/[,;\s\n]+/).filter(function (p) { return p.trim(); });
+    var valid = parts.filter(function (p) {
+      return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.trim());
+    });
+
+    if (valid.length === parts.length) {
+      el.textContent = valid.length + ' valid email' + (valid.length > 1 ? 's' : '') + ' will be notified';
+      el.className = 'email-count has';
+    } else {
+      el.textContent = valid.length + ' of ' + parts.length + ' valid (invalid ones will be skipped)';
+      el.className = 'email-count bad';
+    }
+  }
+
+  // ── Amount advice: echo the parsed value so a typo is obvious ──
+  function onAmountAdviceInput() {
+    var raw = document.getElementById('amountAdvice').value;
+    var el  = document.getElementById('amtHint');
+
+    if (!raw.trim()) { el.className = 'amt-hint'; el.textContent = ''; validate(); return; }
+
+    var cleaned = raw.replace(/[^0-9.\-]/g, '');
+    var n = parseFloat(cleaned);
+
+    if (isNaN(n)) {
+      el.className = 'amt-hint visible bad';
+      el.textContent = 'Not a valid number — this will be saved blank.';
+    } else {
+      el.className = 'amt-hint visible';
+      el.textContent = 'Will be saved as ₦'
+        + n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    validate();
+  }
+
+  // ── Validation ────────────────────────────────────────────
+  function validate() {
+    var ok = document.getElementById('txnId').value &&
+             document.getElementById('airline').value &&
+             document.getElementById('refundType').value &&
+             document.getElementById('issuedFrom').value &&
+             document.getElementById('requestedBy').value &&
+             document.getElementById('requestedByEmail').value.trim();
+
+    document.getElementById('submitBtn').disabled = !ok;
+  }
+
+  // ── Submit ────────────────────────────────────────────────
+  function submitForm() {
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+    hideResult();
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        btn.innerHTML = 'Submit Refund Request';
+        if (res.success) {
+          showResult('success',
+            '&#x2705; ' + res.message
+            + '<br><strong>Request ID: ' + res.requestId + '</strong>'
+            + '<br>Email notifications have been sent to all stakeholders.'
+          );
+          resetForm();
+        } else {
+          showResult('error', '&#x274C; ' + res.message);
+          validate();
+        }
+      })
+      .withFailureHandler(function (err) {
+        btn.innerHTML = 'Submit Refund Request';
+        showResult('error', '&#x274C; Submission failed: ' + err.message);
+        validate();
+      })
+      .submitRefundRequest({
+        txnId:            document.getElementById('txnId').value,
+        ticketNo:         document.getElementById('ticketNo').value,
+        paxName:          document.getElementById('paxName').value,
+        requestedBy:      document.getElementById('requestedBy').value.trim(),
+        requestedByEmail: document.getElementById('requestedByEmail').value.trim(),
+        customerEmail:    document.getElementById('customerEmail').value.trim(),
+        refundType:       document.getElementById('refundType').value,
+        airline:          document.getElementById('airline').value,
+        issuedFrom:       document.getElementById('issuedFrom').value,
+        amountAdvice:     document.getElementById('amountAdvice').value.trim(),
+        comment:          document.getElementById('comment').value.trim()
+      });
+  }
+
+  function resetForm() {
+    clearTxn();
+    document.getElementById('airline').value          = '';
+    document.getElementById('refundType').value       = '';
+    document.getElementById('emailCount').textContent = '';
+    document.getElementById('requestedBy').value      = '';
+    document.getElementById('requestedByEmail').value = '';
+    document.getElementById('customerEmail').value    = '';
+    document.getElementById('issuedFrom').value       = '';
+    document.getElementById('issuedFlag').className   = 'air-flag';
+    document.getElementById('amountAdvice').value     = '';
+    document.getElementById('amtHint').className      = 'amt-hint';
+    document.getElementById('comment').value          = '';
+    validate();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function showResult(type, msg) {
+    var el = document.getElementById('resultMsg');
+    el.className = 'result ' + type;
+    el.innerHTML = msg;
+  }
+  function hideResult() {
+    var el = document.getElementById('resultMsg');
+    el.className = 'result'; el.innerHTML = '';
+  }
+  function hideLoader()  { document.getElementById('pageLoader').classList.add('hidden'); }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "name": "WGS Refunds",
+  "dataColors": ["#F58220", "#003049", "#319F4E", "#1565C0", "#7B4FBF", "#B8860B", "#E65100", "#6B6B6B"],
+  "foreground": "#23292B",
+  "foregroundNeutralSecondary": "#6B6B6B",
+  "foregroundNeutralTertiary": "#9E9E9E",
+  "background": "#FFFFFF",
+  "backgroundLight": "#F4F4F4",
+  "backgroundNeutral": "#E3E3E3",
+  "tableAccent": "#F58220",
+  "good": "#319F4E",
+  "neutral": "#B8860B",
+  "bad": "#B71C1C",
+  "maximum": "#F58220",
+  "center": "#FDF0E2",
+  "minimum": "#FFFFFF",
+  "hyperlink": "#F58220",
+  "visitedHyperlink": "#D4711A",
+  "textClasses": {
+    "callout": { "fontSize": 26, "fontFace": "Cambria", "color": "#23292B" },
+    "title": { "fontSize": 11, "fontFace": "Arial", "color": "#23292B" },
+    "header": { "fontSize": 10, "fontFace": "Arial", "color": "#23292B" },
+    "label": { "fontSize": 9, "fontFace": "Arial", "color": "#6B6B6B" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": false }],
+        "border": [{ "show": false }],
+        "dropShadow": [{ "show": false }],
+        "title": [{ "show": false }],
+        "visualHeader": [{ "show": true }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "transparency": 0 }],
+        "outspace": [{ "color": { "solid": { "color": "#F4F4F4" } } }]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "columnHeaders": [{ "fontColor": { "solid": { "color": "#FFFFFF" } }, "backColor": { "solid": { "color": "#7A7A7A" } }, "fontFamily": "Arial", "fontSize": 9 }],
+        "values": [{ "fontSize": 9, "backColorPrimary": { "solid": { "color": "#FFFFFF" } }, "backColorSecondary": { "solid": { "color": "#FAFAFA" } } }],
+        "total": [{ "fontColor": { "solid": { "color": "#FFFFFF" } }, "backColor": { "solid": { "color": "#23292B" } } }],
+        "grid": [{ "gridHorizontalColor": { "solid": { "color": "#F0F0F0" } } }]
+      }
+    },
+    "slicer": {
+      "*": {
+        "header": [{ "show": false }],
+        "items": [{ "fontColor": { "solid": { "color": "#23292B" } }, "textSize": 10 }]
+      }
+    }
+  }
+}
